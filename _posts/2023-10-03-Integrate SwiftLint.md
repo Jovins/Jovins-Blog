@@ -253,6 +253,33 @@ identifier_name:
     - GlobalAPIKey
 reporter: "xcode" # 报告类型 (xcode, json, csv, checkstyle, codeclimate, junit, html, emoji, sonarqube, markdown, github-actions-logging)
 ```
+例子:
+```
+opt_in_rules:
+  - force_unwrapping
+disabled_rules:
+  - unused_optional_binding
+  - closure_end_indentation
+  - closure_parameter_position
+  - cyclomatic_complexity
+  - file_length
+  - function_body_length
+  - function_parameter_count
+  - line_length
+  - todo
+  - type_body_length
+  - type_name
+  - identifier_name
+  - class_delegate_protocol
+  - shorthand_operator
+  - large_tuple
+  - void_function_in_ternary
+excluded:
+  - Pods
+  - Test_XCTests
+reporter:
+  - xcode
+```
 
 **定义自定义规则**
 
