@@ -7,8 +7,6 @@ tags: [Swift, SwiftLint, 代码规范]
 
 ---
 
-## 集成SwiftLint到Xcode项目
-
 ### 前言
 
 - [SwiftLint](https://github.com/realm/SwiftLint)是 [Realm](https://realm.io/) 推出的一款 Swift 代码规范检查工具, 基本上以 [Kodeco's Swift 代码风格指南](https://github.com/kodecocodes/swift-style-guide)为基础, 比较容易集成到Xcode. 支持自动纠正部分代码、支持自定义规则、可禁用或者开启某一些规则.
