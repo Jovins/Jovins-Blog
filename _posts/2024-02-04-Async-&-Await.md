@@ -19,7 +19,7 @@ tags: [Swift, Concurrency, Async, Await, Task]
 
 ### 异步如何取代闭包
 
-![async](/assets/images/2024Swift/async00)
+![async](/assets/images/2024Swift/async00.png)
 
 如上图是一个获取缩略图的流程，具体的代码如下所示。可用于多次使用回调处理，显示缩略图这个简单的任务对应的代码，但是这段代码是有点问题。
 
@@ -128,11 +128,11 @@ extension UIImage {
 
 ### Async 异步原理
 
-![async](/assets/images/2024Swift/async01)
+![async](/assets/images/2024Swift/async01.png)
 
 如上图所示是一个普通函数的执行流程，当`fetchThumbnail`调用`thumbnailURLRequest`时，同时也将线程控制权交给了后者。而`thumbnailURLRequest`执行结束后，则会主动交回控制权给调用它的`fetchThumbnail`，从而继续执行前者的逻辑。普通函数交出对线程的控制权的唯一方式，是该函数执行结束。
 
-![async](/assets/images/2024Swift/async02)
+![async](/assets/images/2024Swift/async02.png)
 
 如上图所示调用 async 函数时，控制权的传递则与之不同。fetchThumbnail`调用 async 方法`data(for: request)`时，同时也将线程控制权交给了后者。`data(for: request)`在执行过程中，可能会挂起，并把控制权交给操作系统，而不是它的调用者`fetchThumbnail`，当 async 方法挂起时，其调用者同时也被挂起了。当async方法执行完毕后，它会把控制权再交还给它的调用者`fetchThumbnail`，并继续执行直到结束退出。
 
@@ -174,7 +174,7 @@ struct ThumbnailView: View {
 
 已经了解了`Async & Await` 之后，那么如何在项目中使用呢？把完成的回调直接去掉，使用`try?`和`await`来衔接`fetchThumbnail`的调用。但是编译的时候代码报错了(如下图)，提示是`async 方法不能使用在不支持并行的上下文中`。
 
-![async](/assets/images/2024Swift/async03)
+![async](/assets/images/2024Swift/async03.png)
 
 在同步执行中是不能接受使用await异步代码的，解决这个问题是使用`Task` 任务函数。`Task` 任务把要执行的工作包裹在闭包中，并把它发送给系统，等待下一个可执行任务的线程去立即执行。就像全局`DispatchQueue`的 async 方法一样。
 
@@ -243,7 +243,7 @@ func getPersistentPosts(completion: @escaping ([Post], Error?) -> Void) {
 
 调用`getPersistentPosts`时，调用会进入 Core Data，一段时间后，Core Data 会调用完成回调把结果传递回`getPersistentPosts`。这个过程是异步请求的过程，那么如何改造成 async 方法呢？
 
-![async](/assets/images/2024Swift/async04)
+![async](/assets/images/2024Swift/async04.png)
 
 Swift提供了让开发者能够安全便利的使用 continuation 的能力，下面代码中的`withCheckedThrowingContinuation` 把原本使用完成回调的方法转换成了async方法，所以在它使用 try await 之前，并将其返回值作为 persistentPosts 这个 async 方法的返回值。`continuation.resume`方法，则是连接上图右侧的 resume 断层的桥梁，它使得挂起的函数在合适的时候继续执行。注意下面代码中的`throwing`和`returning`两种形态。
 
@@ -262,9 +262,9 @@ func persistenPosts() async throws -> [Post] {
 
 continuation 有个简单但是重要的原则，`resume`方法必须在每个路径上执行，有且只有一次。
 
-![async](/assets/images/2024Swift/async05)
+![async](/assets/images/2024Swift/async05.png)
 
-![async](/assets/images/2024Swift/async06)
+![async](/assets/images/2024Swift/async06.png)
 
 ### 总结
 
