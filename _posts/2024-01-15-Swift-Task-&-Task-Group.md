@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Swift 并发框架之Task & Task Group"
-date: 2024-02-15 21:15:00.000000000 +09:00
+date: 2024-01-15 21:15:00.000000000 +09:00
 categories: [Swift]
 tags: [Swift, Concurrency, Task, Task Group]
 ---
@@ -11,8 +11,6 @@ tags: [Swift, Concurrency, Task, Task Group]
 Swift 中的 `Task` 和 `Task Group` 是 WWDC 2021 引入并发编程的新特性，它们是 Swift 5.5 中引入的异步/并发编程模型的一部分。`Task`允许我们从非并发方法创建并发环境，使用 async/await 调用方法。
 
 ### Task
-
-**Task**:
 
 - `Task` 是一个表示异步操作的类型，可以通过 `async` 关键字来创建。
 - 它可以用于执行异步操作，比如网络请求、文件 I/O 等。
@@ -357,4 +355,4 @@ func asyncPrint(_ string: String) async {
 
 ### 总结
 
-![task](/assets/images/2024Swift/task03.png)
+![task](/assets/images/2024Swift/task03.webp)
