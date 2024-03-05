@@ -240,7 +240,7 @@ MainActor 是一个全局唯一的 Actor，在主线程上执行任务，作为�
 
 ```swift
 @MainActor
-final class MyMainActorStruct {
+final class MyMainActor {
     @MainActor
     var mainThreadData: Int {
         get {
@@ -253,7 +253,7 @@ final class MyMainActorStruct {
         // 在这里执行需要在主线程上完成的任务
     }
 }
-let actorInstance = MyMainActorStruct()
+let actorInstance = MyMainActor()
 await actorInstance.performTask() // 确保在主线程上执行
 let data = actorInstance.mainThreadData // 确保从主线程获取数据
 ```
