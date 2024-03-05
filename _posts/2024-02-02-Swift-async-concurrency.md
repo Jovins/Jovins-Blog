@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Swift 异步与并发"
+title: "Swift结构化并发"
 date: 2024-02-02 10:05:00.000000000 +09:00
 categories: [Swift]
 tags: [Swift, Concurrency, Async, Await, Task, Actor]
@@ -9,7 +9,7 @@ tags: [Swift, Concurrency, Async, Await, Task, Actor]
 
 ### 前言
 
-在认识swift中的异步与并发时，先回顾一下多线程.
+在认识`Swift`中的异步与并发时，先回顾一下多线程.
 
 同步和异步的区别：
 
