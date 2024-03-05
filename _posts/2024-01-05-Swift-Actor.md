@@ -242,12 +242,12 @@ MainActor 是一个全局唯一的 Actor，在主线程上执行任务，作为�
 @MainActor
 final class MyMainActorStruct {
     @MainActor
-		var mainThreadData: Int {
-    		get {
-        		// 从主线程获取数据
-        		return 5
-    		}
-		}
+    var mainThreadData: Int {
+        get {
+            // 从主线程获取数据
+            return 5
+        }
+    }
     @MainActor
     func performTask() async {
         // 在这里执行需要在主线程上完成的任务
