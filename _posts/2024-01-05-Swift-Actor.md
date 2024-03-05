@@ -236,7 +236,7 @@ actor BankAccountActor {
 
 #### 什么MainActor
 
-MainActor 是一个全局唯一的 Actor，在主线程上执行任务，作为其全局 Actor 的一个例子，它继承了`GlobalActor`协议。全局 Actor 注释的类的子类必须与同一个全局 Actor 隔离
+MainActor 是一个全局唯一的 Actor，在主线程上执行任务，作为其全局 Actor 的一个例子，继承了`GlobalActor`协议；全局 Actor 注释的类的子类必须与同一个全局 Actor 隔离。
 
 ```swift
 @MainActor
