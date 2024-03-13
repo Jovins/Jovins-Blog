@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "iOS 单元测试"
+title: "iOS Test Case"
 date: 2023-09-20 21:15:00.000000000 +09:00
 categories: [Swift]
-tags: [Swift, Unit Test]
+tags: [Swift, Unit Test, UI Tests, Snapshot Tests]
 ---
 
 ### 前言
@@ -62,6 +62,7 @@ import XCTest
 
 final class UnitTestCaseTests: XCTestCase {
     var dataViewModel: DataViewModel!
+ 
     override func setUpWithError() throws {
         try super.setUpWithError()
         dataViewModel = DataViewModel()
@@ -98,12 +99,14 @@ final class UnitTestCaseTests: XCTestCase {
 /// 测试路由
 import XCTest
 @testable import TheBump
+
 class AppRouterTests: TBBaseTests {
     var navigator: TBNavigator!
     override func setUpWithError() throws {
         AppRouter.shared.configureRoutes()
         navigator = AppRouter.shared.navigator
     }
+ 
     func testBWBWRegister() {
         let vc = navigator.viewController(for: "thebump://baby-week-by-week/2/test", context: nil)
         guard let vc = vc as? HBIBAndHBICViewController else {
@@ -131,8 +134,10 @@ import XCTest
 import RxTest
 import RxSwift
 @testable import TheBump
+
 final class TBKickCounterRepositoryTests: TBBaseTests {
     private let repo = TBKickCounterRepository.shared
+  
     override func setUp() {
         super.setUp()
         repo.resetAllKickCounters()
