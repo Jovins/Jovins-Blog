@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Swift 并发框架之Sendable"
-date: 2024-01-14 21:15:00.000000000 +09:00
+date: 2024-01-14 21:15:00 +0800
 categories: [Swift]
 tags: [Swift, Concurrency, Sendable]
 ---
