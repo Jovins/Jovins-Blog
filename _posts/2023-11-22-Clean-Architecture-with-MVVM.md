@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "浅谈iOS Architecture"
+title: "浅谈Clean Architecture"
 date: 2023-11-22 23:10:00.000000000 +09:00
 categories: [Swift]
 tags: [Swift, Architecture, MVVM, Clean]
@@ -97,7 +97,7 @@ MVVM架构的核心思想是解耦视图和业务逻辑，使得它们可以独�
 
 `VIPER架构`强调了模块之间的清晰分离和单一职责原则，使得各个组件之间的依赖性更加清晰，有利于代码的可维护性和可测试性。`VIPER架构`通过将应用程序划分为不同的组件，并定义明确的职责和交互方式，帮助开发人员更好地设计和构建iOS应用程序。
 
-## Clean Architecture with mvvm
+## Clean Architecture
 
 ![clean](/assets/images/2024Swift/cleanmvvm06.png)
 
@@ -126,3 +126,221 @@ MVVM Clean Architecture是一种将MVVM（Model-View-ViewModel）架构模式与
 3. **单一职责原则**：每个组件都具有明确的职责，模型负责数据管理和业务逻辑，视图负责用户界面的展示，而视图模型则负责连接视图和模型，并处理视图的显示逻辑。
 4. **可测试性**：MVVM Clean Architecture强调对代码进行单元测试和集成测试，由于各个组件之间的清晰划分，使得测试工作更加容易。
 5. **可扩展性**：应用MVVM Clean Architecture的应用程序更容易扩展和修改，新增功能或调整需求时，可以更灵活地对系统进行改动而不会影响其他部分。
+
+### 实践
+
+```
+-- Presentation
+------ Views
+------ ViewModels
+-- Domain
+------ Entities
+------ UseCases
+------ Interfaces
+-- Data
+------ API
+------ Repositories
+```
+
+#### 1.定义Model
+
+```swift
+struct Report: Codable, Hashable {
+		let id: String?
+    let date: Date?
+    var status: Status?
+    let skuId: String?
+    let sku: String?
+    let units: String?
+    let createdAt: Date?
+    let updatedAt: Date?
+}
+```
+
+#### 2.创建ViewModel
+
+```swift
+final class ReportViewModel: BaseViewModel {
+    
+    private(set) var reports: [Report] = []
+    private var page: Int = 1
+    private var size: Int = 20
+    
+    func fetchReports(refreshType: RefreshType, status: String) {
+        ReportUseCases().fetchReports(status: status, page: page, size: size)
+            .handleEvents(receiveSubscription: { _ in
+            }, receiveOutput: { [weak self] output in
+                if let self,
+                   !output.pageContext.isNoMore {
+                    page += 1
+                }
+            }, receiveCompletion: { [weak self] completion in
+                guard let self else { return }
+                self.showErrorHud(refreshType: refreshType, completion: completion)
+            }).map { model in
+                if refreshType == .refresh {
+                    self.reports = model.items
+                } else {
+                    self.reports.append(contentsOf: model.items)
+                }
+                return model.pageContext
+            }.eraseToAnyPublisher()
+    }
+}
+```
+
+#### 3.设计Views and View Controllers
+
+```swift
+import UIKit
+import Combine
+
+final class ReportViewController: UIViewController {
+
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView(frame: CGRect(), style: .plain)
+        tableView.backgroundColor = .white
+        tableView.separatorStyle = .none
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.allowsMultipleSelectionDuringEditing = true
+        tableView.register(ReportTableViewCell.self)
+        return tableView
+    }()
+    private var viewModel: ReportViewModel = ReportViewModel()
+    private let cancelBag = CancelBag()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+    }
+
+    private func setupUI() {
+        view.backgroundColor = .white
+        navigationItem.title = "Report"
+        view.addSubview(tableView)
+        tableView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+      	tableView.addRefreshAndLoadMore { [weak self] in
+            guard let self else { return }
+            self.loadData(refreshType: .more)
+        }
+        tableView.refreshAction = { [weak self] in
+            guard let self else { return }
+            self.resetPrefetchedData()
+            self.loadData(refreshType: .refresh)
+        }
+        tableView.loadMoreAction = { [weak self] in
+            guard let self else { return }
+            self.loadData(refreshType: .more)
+        }
+        loadData(refreshType: .refresh)
+    }
+  
+  	private func loadData(refreshType: RefreshType) {
+        viewModel.fetchReports(refreshType: refreshType, status: status)
+            .sink { [weak self] completion in
+                guard let self else { return }
+                if case .failure(_) = completion,
+                   refreshType == .more {
+                    self.tableView.showErrorFooterView()
+                }
+                self.tableView.endRefresh()
+            } receiveValue: { [weak self] pageContext in
+                guard let self else { return }
+                if pageContext.isNoMore {
+                    self.tableView.setNoMoreData(showFooter: !pageContext.noData)
+                } else {
+                    self.tableView.resetNoMoreData()
+                }
+                self.tableView.reloadData()
+            }.store(in: cancelBag)
+    }
+}
+
+// MARK: - UITableViewDataSource
+extension IdahBatchReportViewController: UITableViewDataSource, UITableViewDelegate {
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return viewModel.reports.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(IdahReportApprovalTableViewCell.self, for: indexPath)
+        cell.setupData(model: viewModel.reports[indexPath.row])
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
+    }
+}
+```
+
+#### 4.实现数据绑定
+
+使用数据绑定机制（例如 KVO、ReactiveSwift 或 Combine）在 ViewModel 和视图之间建立双向关系。这样，只要 ViewModel 的属性发生变化，就可以自动更新 UI。
+
+#### 5. 与数据层集成
+
+实现数据层以从各种来源获取和保存数据。这可以使用网络请求、本地数据库或其他数据存储机制来完成。ViewModel 应通过接口或协议与数据层交互，以促进松散耦合。
+
+```swift
+struct ReportUseCases {
+    func fetchReports(status: String, page: Int, size: Int) -> AnyPublisher<Reports, Error> {
+        return ReportRepository().fetchReports(status: status, page: page, size: size)
+    }
+}
+
+struct ReportRepository {
+    func fetchReports(status: String, page: Int, size: Int) -> AnyPublisher<Reports, Error> {
+        return IdahNetwork.decodableRequest(ReportAPI(status: status, page: page, size: size))
+    }
+}
+
+struct ReportAPI {
+    let status: String?
+    let page: Int
+    let size: Int
+}
+
+extension ReportAPI: DecodableTargetType {
+
+    typealias ResultType = Reports
+
+    var baseURL: URL {
+        return Host.domain
+    }
+
+    var path: String {
+        return "/reports/search"
+    }
+
+    var method: Moya.Method {
+        return .post
+    }
+
+    var task: Moya.Task {
+        var parameters = [String: Any]()
+        if status != "全部" {
+            parameters["status"] = status
+        }
+        parameters["endDate"] = Date().formateCurrentDateToYMD()
+        parameters["page"] = page
+        parameters["size"] = size
+        return .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
+    }
+
+    var headers: [String : String]? { nil }
+}
+
+```
+
+#### 6.单元测试
+
+为 ViewModel 层编写单元测试，确保其正确性和可靠性。模拟数据层依赖关系以隔离 ViewModel 的逻辑并验证其在不同场景下的行为。
+
+## 结论
+
+在本文中，我们探讨了 MVVM Clean Architecture 如何帮助我们构建强大且可扩展的 iOS 应用程序。通过分离关注点并促进松散耦合，此架构模式增强了代码的可测试性、可维护性和可重用性。如果正确实施，MVVM Clean Architecture 可以使 iOS 开发人员创建易于维护、扩展和测试的应用程序，从而带来更好的用户体验。
