@@ -236,7 +236,7 @@ actor BankAccountActor {
 
 #### 什么MainActor
 
-MainActor 是一个全局唯一的 Actor，在主线程上执行任务，作为其全局 Actor 的一个例子，继承了`GlobalActor`协议；全局 Actor 注释的类的子类必须与同一个全局 Actor 隔离。
+MainActor 是一个全局唯一的 Actor，在主线程上执行任务，作为其全局 Actor 的一个例子，继承了`GlobalActor`协议；全局 Actor 注释的类的子类必须与同一个全局 Actor 隔离。其底层实现依赖于 Swift 的运行时调度机制。
 
 ```swift
 @MainActor
@@ -257,6 +257,20 @@ let actorInstance = MyMainActor()
 await actorInstance.performTask() // 确保在主线程上执行
 let data = actorInstance.mainThreadData // 确保从主线程获取数据
 ```
+
+#### MainActor 调度机制
+
++ 标注机制
+
+  `MainActor` 通过 @MainActor 属性包装器和函数标注来标记代码，这些标记会通知编译器生成相应的调度代码，确保在主线程上执行。
+
++ 调度机制
+
+  `MainActor` 利用 GCD 来调度任务到主线程上执行。
+
++ 隔离机制
+
+  `MainActor` 利用 actor 的隔离机制，确保其内部状态只能通过其行为来访问，从而避免数据竞争。
 
 ### 总结
 
