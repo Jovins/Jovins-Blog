@@ -13,7 +13,7 @@ tags: [iOS 基础, 底层原理]
 
 **NSObject_IMPL内部:**
 
-```objective-c
+```swift
 struct NSObject_IMPL {
     Class isa;
 };
@@ -25,7 +25,7 @@ typedef struct objc_class *Class;
 
 **自定义类的内部实现:**
 
-```objective-c
+```swift
 @interface Student : NSObject{
     @public
     int _no;
@@ -49,7 +49,7 @@ struct Student_IMPL {
 
 获取对象占用内存的大小，可以通过更便捷的运行时方法来获取
 
-```objective-c
+```swift
 class_getInstanceSize([Student class])
 NSLog(@"%zd,%zd", class_getInstanceSize([NSObject class]) ,class_getInstanceSize([Student class]));
 // 打印信息 8和16
@@ -63,7 +63,7 @@ NSLog(@"%zd,%zd", class_getInstanceSize([NSObject class]) ,class_getInstanceSize
 
 + `instance` 对象: 实例对象
 
-  ```objective-c
+  ```swift
   // instance对象就是通过类alloc出来的对象，每次调用alloc都会产生新的instance对象
   NSObjcet *object1 = [[NSObjcet alloc] init];
   ```
@@ -77,7 +77,7 @@ NSLog(@"%zd,%zd", class_getInstanceSize([NSObject class]) ,class_getInstanceSize
 
 + `class` 对象: 类对象
 
-  ```objective-c
+  ```swift
   // class方法或runtime方法得到一个class对象，class对象也就是类对象
   Class objectClass1 = [object1 class];
   // runtime
@@ -99,7 +99,7 @@ NSLog(@"%zd,%zd", class_getInstanceSize([NSObject class]) ,class_getInstanceSize
 
 + `meta-class` 对象: 元类对象
 
-  ```objective-c
+  ```swift
   //runtime中传入类对象此时得到的就是元类对象
   Class objectMetaClass = object_getClass([NSObject class]);
   // 而调用类对象的class方法时得到还是类对象，无论调用多少次都是类对象
@@ -148,7 +148,7 @@ NSLog(@"%zd,%zd", class_getInstanceSize([NSObject class]) ,class_getInstanceSize
 
 **对isa、superclass总结**
 
-```
+```swift
 1.instance的isa指向class
 2.class的isa指向meta-class
 3.meta-class的isa指向基类的meta-class，基类的isa指向自己
@@ -164,7 +164,7 @@ meta-class的superclass指向父类的meta-class，基类的meta-class的supercl
 
 **面试题**
 
-```
+```swift
 一个NSObject对象占用多少内存？
 答：一个指针变量所占用的大小（64bit占8个字节，32bit占4个字节）
 
@@ -191,7 +191,7 @@ OC的类信息存放在哪里？
 
 _NSSet*ValueAndNotify内部实现
 
-```objective-c
+```swift
 [self willChangeValueForKey: @age];
 // 原来的Setter方法
 [self didChangeValueForKey: @age];
@@ -215,7 +215,7 @@ KVO 底层原理：
 
 **面试题:**
 
-```
+```swift
 1.iOS用什么方式实现对一个对象的KVO？（KVO的本质是什么？）
 当一个对象使用了KVO监听，iOS系统会修改这个对象的isa指针，改为指向一个全新的通过Runtime动态创建的子类，子类拥有自己的set方法实现，set方法实现内部会顺序调用willChangeValueForKey方法、原来的setter方法实现、didChangeValueForKey方法，而didChangeValueForKey方法内部又会调用监听器的observeValueForKeyPath:ofObject:change:context:监听方法。
 
@@ -268,7 +268,7 @@ if let name = person.value(forKey: "name") as? String {
 
    答：不能直接添加成员变量，但是可以通过runtime的方式间接实现添加成员变量的效果。
 
-```objective-c
+```swift
 typedef OBJC_ENUM(uintptr_t, objc_AssociationPolicy) {
     OBJC_ASSOCIATION_ASSIGN = 0,           // 指定一个弱引用相关联的对象
     OBJC_ASSOCIATION_RETAIN_NONATOMIC = 1, // 指定相关对象的强引用，非原子性
@@ -287,7 +287,7 @@ objc_removeAssociatedObjects(self);
 
 block本质上也是一个oc对象，他内部也有一个isa指针。block是封装了函数调用以及函数调用环境的OC对象。
 
-```objective-c
+```swift
 // Block内部结构
 struct __block_impl {
   void *isa;
@@ -325,7 +325,7 @@ struct __block_impl {
 
 block 是继承自NSBlock类型，而NSBlock继承于NSObjcet。那么block其中的isa指针其实是来自NSObject中的。 block 有3中类型
 
-```
+```swift
 __NSGlobalBlock__ （ _NSConcreteGlobalBlock ）
 __NSStackBlock__ （ _NSConcreteStackBlock ）
 __NSMallocBlock__ （ _NSConcreteMallocBlock ）
@@ -356,7 +356,7 @@ Objective-C中的block（也称为闭包）是一种特殊的数据结构，它�
 
 Objective-C 是面相运行时的语言( runtime oriented language )。Runtime（运行时）机制是编程语言的核心特性之一，特别是在动态语言中。Runtime系统负责管理程序在运行时的行为，包括但不限于对象的创建、消息的发送、内存管理等。以下是Runtime机制的详细解析，以Objective-C为例，因为它提供了丰富的Runtime功能。
 
-```
+```swift
 1. 动态类型识别
 Objective-C在运行时可以查询对象的实际类型，这与静态类型语言不同，后者的类型信息在编译时就已经确定。使用objc_object可以获取对象的类信息。
 
@@ -396,7 +396,7 @@ Objective-C的Runtime支持动态加载和卸载库，这允许程序在运行�
 
 **Runtime 消息转发机制**
 
-```objective-c
+```swift
 [obj makeText];
 // obj是一个对象，makeText是一个函数名称。对于这样一个简单的调用。在编译时RunTime会将上述代码转化成
 objc_msgSend(obj,@selector(makeText));
@@ -404,7 +404,7 @@ objc_msgSend(obj,@selector(makeText));
 
 Runtime消息转发机制是其动态特性的核心部分，允许对象在接收到无法识别的消息（即没有实现的方法）时，有机会处理这个消息。以下是消息转发机制的详细解析：
 
-```objective-c
+```swift
 // 消息发送
 在Objective-C中，方法调用实际上是消息发送的过程。当你调用一个对象的方法时，实际上是在向这个对象发送一个选择器（Selector），Runtime系统会尝试找到并执行相应的方法实现。
   
@@ -457,7 +457,7 @@ NSRunLoop 是基于 CFRunLoopRef 的封装，提供了面向对象的 API，但�
 
 在 CoreFoundation 里面关于 RunLoop 有5个类:
 
-```
+```swift
 CFRunLoopRef
 CFRunLoopModeRef
 CFRunLoopSourceRef
@@ -491,7 +491,7 @@ CFRunLoopObserverRef
 
 当`iPhone`接受到一个触摸事件时，处理过程如下：
 
-```
+```swift
 1.通过动作产生触摸事件唤醒处于睡眠状态中的app；
 2.使用IOKit.framework将事件封装为 IOHIDEvent 对象；
 3.系统通过 mach port 将 IOHIDEvent 对象转发给 SpringBoard.app 处理。SpringBorad 是iPhone手机的桌面管理程序，4.SpringBoard 可以找到能够处理该事件的app，然后将 IOHIDEvent 对象通过mach port转发给对应的App；
@@ -504,7 +504,7 @@ CFRunLoopObserverRef
 
 **2.苹果用 RunLoop 实现的功能**
 
-```
+```swift
 1. kCFRunLoopDefaultMode: App的默认 Mode，通常主线程是在这个 Mode 下运行的。
 2. UITrackingRunLoopMode: 界面跟踪 Mode，用于 ScrollView 追踪触摸滑动，保证界面滑动时不受其他 Mode 影响。
 3. UIInitializationRunLoopMode: 在刚启动 App 时第进入的第一个 Mode，启动完成后就不再使用。
@@ -589,7 +589,7 @@ GCD（Grand Central Dispatch）的具体使用方法涉及到将任务提交到�
 
 **1. 串行队列（Serial Dispatch Queue）**
 
-```
+```swift
 let queue = DispatchQueue(label: "com.example.mySerialQueue")
 
 // 将任务提交到串行队列
@@ -601,7 +601,7 @@ queue.async {
 
 **2. 并发队列（Concurrent Dispatch Queue）**
 
-```
+```swift
 let concurrentQueue = DispatchQueue(label: "com.example.myConcurrentQueue", attributes: .concurrent)
 
 // 将任务提交到并发队列
@@ -615,7 +615,7 @@ concurrentQueue.async {
 
 更新UI时，需要在主队列上执行：
 
-```
+```swift
 DispatchQueue.main.async {
     // 更新UI的操作
     print("更新UI - 主队列")
@@ -624,7 +624,7 @@ DispatchQueue.main.async {
 
 **4. 全局队列（Global Dispatch Queue）**
 
-```
+```swift
 // 使用全局队列执行任务，可以指定优先级
 DispatchQueue.global(qos: .userInitiated).async {
     // 这里执行后台任务
@@ -636,7 +636,7 @@ DispatchQueue.global(qos: .userInitiated).async {
 
 使用任务组可以等待多个异步任务完成：
 
-```
+```swift
 let group = DispatchGroup()
 
 // 将任务提交到任务组
@@ -666,7 +666,7 @@ group.notify(queue: DispatchQueue.main) {
 
 使用信号量控制同时执行的任务数量：
 
-```
+```swift
 let semaphore = DispatchSemaphore(value: 2)
 
 // 等待信号量
@@ -702,7 +702,7 @@ OS 内存管理是指对于应用程序中的对象内存进行合理分配和�
 
 iOS内存管理是确保应用程序高效运行的关键部分。在iOS开发中，内存管理主要涉及以下几个方面：
 
-```
+```swift
 1. 自动引用计数（ARC, Automatic Reference Counting）
 ARC是iOS开发中用于管理内存的主要机制。它自动跟踪对象的引用计数，并在没有强引用时释放对象。
 开发者不需要手动调用retain、release或autorelease方法来管理内存。
@@ -975,6 +975,127 @@ iOS 开发中常用的设计模式主要包括以下几种：
 
 ----
 
+## 敏捷开发
+
+敏捷开发（Agile Development）是一种以人为核心、迭代、循序渐进的软件开发方法论。敏捷开发流程强调在整个开发过程中的适应性和灵活性，以及快速和高效地交付价值给客户。以下是敏捷开发流程的详细解析：
+
+```swift
+什么是敏捷开发?
+在敏捷开发中，软件项目的构建被切分成多个子项目，各个子项目的成果都经过测试，具备集成和可运行的特征。
+在敏捷开发中，软件项目的构建被切分成多个子项目，各个子项目的成果都经过测试，具备集成和可运行的特征。
+简单地来说，敏捷开发并不追求前期完美的设计、完美编码，而是力求在很短的周期内开发出产品的核心功能，尽早发布出可用的版本。然后在后续的生产周期内，按照新需求不断迭代升级，完善产品。
+```
+
+**敏捷宣言（Agile Manifesto）**
+
+敏捷开发的核心理念在2001年由17位软件开发者提出的敏捷宣言中有所体现，主要包括以下四个价值观：
+
+- **个体和互动** 高于流程和工具
+- **可工作的软件** 高于详尽的文档
+- **客户合作** 高于合同谈判
+- **响应变化** 高于遵循计划
+
+**敏捷开发方法论**
+
+有几种流行的敏捷开发方法论，包括但不限于：
+
+- **Scrum**：一个包括角色（如Scrum Master、Product Owner）、仪式（如Sprint Planning、Daily Stand-up）和工件（如Product Backlog）的框架。
+- **极限编程（XP）**：强调编程实践，如结对编程、持续集成和测试驱动开发。
+- **FDD** ：功能驱动开发。
+- **TDD** : 测试驱动开发。
+- **看板（Kanban）**：使用看板板来可视化工作流程，管理进行中的任务。
+
+**Scrum**
+
+SCRUM则是一种开发流程框架，也可以说是一种套路。SCRUM框架中包含三个角色，三个工件，四个会议: 
+
+```swift
+Sprint：冲刺周期，通俗的讲就是实现一个“小目标”的周期。一般需要2-6周时间。
+User Story：用户的外在业务需求。拿银行系统来举例的话，一个Story可以是用户的存款行为，或者是查询余额等等。也就是所谓的小目标本身。
+Task：由User Story 拆分成的具体开发任务。
+Backlog：需求列表，可以看成是小目标的清单。分为Sprint Backlog和Product Backlog。
+Daily meeting(Stand up)：每天的站会，用于监控项目进度。有些公司直接称其为Scrum。
+Sprint Review meeting: 冲刺评审会议，让团队成员们演示成果。
+Sprint burn down：冲刺燃尽图，说白了就是记录当前周期的需求完成情况。
+Rlease：开发周期完成，项目发布新的可用版本。
+```
+
+**SCRUM的工作流程**
+
+```swift
+迭代开发 Iterative Development
+- 开发过程被分解为一系列短期（通常是1到4周）的迭代周期，称为Sprint或迭代。
+
+产品待办列表 Product Backlog
+- 产品负责人（Product Owner）维护一个优先级列表，列出了所有需要开发的功能和需求。
+
+待办列表细化 Backlog Refinement
+- 团队定期审查和优先排序产品待办列表，确保列表反映了客户的需求。
+
+迭代计划 Sprint Planning
+- 在每个迭代开始时，团队选择一定量的产品待办列表项，计划在迭代中完成。
+
+日常沟通 Daily Stand-up 
+- 团队成员每天进行短暂的站立会议，讨论进度、计划和阻碍。
+
+适应性计划 
+敏捷开发鼓励在项目过程中根据反馈和变化来调整计划，而不是严格遵循预先定义的计划。(加ticket)
+
+开发人员互动：
+敏捷开发重视团队成员之间的面对面交流，认为这比流程和工具更为重要。
+
+工作软件：(Jira + Slack + Bitrise) (飞书、钉钉)
+敏捷开发认为可以工作的软件是进度的主要衡量标准，而不是详尽的文档。
+
+持续交付 Continuous Delivery (Jira + Slack + Bitrise)
+- 经常性地向客户交付可工作的软件，通常每个迭代结束时都有交付。
+
+测试驱动开发 Test-Driven Development, TDD
+- 先编写测试用例，然后编写满足测试的代码，确保代码质量。
+
+客户反馈 Customer Feedback (UAT Feedback)
+- 通过原型、演示和交付的软件，收集客户反馈，并将其整合到开发过程中。
+
+回顾 Retrospectives
+- 每个迭代结束时，团队会进行回顾会议，讨论哪些做得好，哪些需要改进。
+```
+
+**敏捷开发与Devops**
+
+Devops是Development和Operations的合成词，其目标是要加强开发人员、测试人员、运维人员之间的沟通协调。如何实现这一目标呢？需要我们的项目做到**持续集成**、**持续交付、持续部署**。
+
+**敏捷 12 原则**
+
+```swift
+1.我们的最高目标是满足客户通过尽早和持续地交付有价值的软件来满足客户。
+2.欢迎需求变更，即使在开发后期也应如此。敏捷过程利用变更为客户竞争优势。
+3.经常交付可工作的软件，交付周期从几周到几个月，以较短的周期为佳。
+4.业务人员和开发者必须每天一起工作。
+5.构建项目围绕有激励的个体。给他们所需的环境和支持，并且信任他们完成工作。
+6.面对面的沟通是信息传递效率和效果最好的方式。尽管这不可替代，也必须足够使用其他方式。
+7.可用的工作软件是进度的主要度量。
+8.敏捷过程提倡可持续的开发。赞助人、开发者和用户应该能够无限期地保持恒定的开发速度。
+9.持续关注技术卓越和良好设计可以增强敏捷性。
+10.简洁——通过尽可能少的工作量做到最大化的工作量——是本质。
+11.最佳的架构、需求和设计来自于自组织的团队。
+12.团队定期反思如何更有效率，并相应地调整其行为。
+```
+
+**敏捷开发的挑战**
+
+- 需要团队成员的高度协作和沟通。
+- 需要客户或利益相关者的持续参与和反馈。
+- 需要团队成员具备快速学习和适应变化的能力。
+
+**敏捷开发的益处**
+
+- 提高了对客户需求变化的响应能力。
+- 增强了团队的协作和沟通。
+- 减少了项目失败的风险。
+- 提供了更高质量的软件解决方案。
+
+----
+
 ## 并发
 
 `Sendable` 和 `@Sendable` 提供了一种在并发代码中明确声明类型和闭包是否是“可发送的”的方式，从而帮助开发者编写更安全、更可靠的并发代码.
@@ -1032,7 +1153,7 @@ App 出现崩溃（crash）原因，是因为违反iOS系统运行规则导致�
 
 **异常监控系统**
 
-```
+```swift
 它的主要功能：
 实时监控SDK业务异常
 汇总包体崩溃排重与聚合后的数据
@@ -1249,7 +1370,7 @@ iOS默认刷新频率是60HZ，所以GPU渲染只要达到60fps就不会产生�
 
 如何避免离屏渲染:
 
-```
+```swift
 1.避免同时设置 layer.cornerRadius 和 layer.masksToBounds = YES,即设置圆角的同时又允许切割圆角；
 2.需要使用圆角图片时，预先用 CoreGraphics 切好；
 3.阴影使用 shadowPath ；
@@ -1428,127 +1549,6 @@ ASDK 把布局计算、文本排版、图片/文本/图形渲染等操作都封�
 
 ---
 
-## 敏捷开发
-
-敏捷开发（Agile Development）是一种以人为核心、迭代、循序渐进的软件开发方法论。敏捷开发流程强调在整个开发过程中的适应性和灵活性，以及快速和高效地交付价值给客户。以下是敏捷开发流程的详细解析：
-
-```
-什么是敏捷开发?
-在敏捷开发中，软件项目的构建被切分成多个子项目，各个子项目的成果都经过测试，具备集成和可运行的特征。
-在敏捷开发中，软件项目的构建被切分成多个子项目，各个子项目的成果都经过测试，具备集成和可运行的特征。
-简单地来说，敏捷开发并不追求前期完美的设计、完美编码，而是力求在很短的周期内开发出产品的核心功能，尽早发布出可用的版本。然后在后续的生产周期内，按照新需求不断迭代升级，完善产品。
-```
-
-**敏捷宣言（Agile Manifesto）**
-
-敏捷开发的核心理念在2001年由17位软件开发者提出的敏捷宣言中有所体现，主要包括以下四个价值观：
-
-- **个体和互动** 高于流程和工具
-- **可工作的软件** 高于详尽的文档
-- **客户合作** 高于合同谈判
-- **响应变化** 高于遵循计划
-
-**敏捷开发方法论**
-
-有几种流行的敏捷开发方法论，包括但不限于：
-
-- **Scrum**：一个包括角色（如Scrum Master、Product Owner）、仪式（如Sprint Planning、Daily Stand-up）和工件（如Product Backlog）的框架。
-- **极限编程（XP）**：强调编程实践，如结对编程、持续集成和测试驱动开发。
-- **FDD** ：功能驱动开发。
-- **TDD** : 测试驱动开发。
-- **看板（Kanban）**：使用看板板来可视化工作流程，管理进行中的任务。
-
-**Scrum**
-
-SCRUM则是一种开发流程框架，也可以说是一种套路。SCRUM框架中包含三个角色，三个工件，四个会议: 
-
-```
-Sprint：冲刺周期，通俗的讲就是实现一个“小目标”的周期。一般需要2-6周时间。
-User Story：用户的外在业务需求。拿银行系统来举例的话，一个Story可以是用户的存款行为，或者是查询余额等等。也就是所谓的小目标本身。
-Task：由User Story 拆分成的具体开发任务。
-Backlog：需求列表，可以看成是小目标的清单。分为Sprint Backlog和Product Backlog。
-Daily meeting(Stand up)：每天的站会，用于监控项目进度。有些公司直接称其为Scrum。
-Sprint Review meeting: 冲刺评审会议，让团队成员们演示成果。
-Sprint burn down：冲刺燃尽图，说白了就是记录当前周期的需求完成情况。
-Rlease：开发周期完成，项目发布新的可用版本。
-```
-
-**SCRUM的工作流程**
-
-```
-迭代开发 Iterative Development
-- 开发过程被分解为一系列短期（通常是1到4周）的迭代周期，称为Sprint或迭代。
-
-产品待办列表 Product Backlog
-- 产品负责人（Product Owner）维护一个优先级列表，列出了所有需要开发的功能和需求。
-
-待办列表细化 Backlog Refinement
-- 团队定期审查和优先排序产品待办列表，确保列表反映了客户的需求。
-
-迭代计划 Sprint Planning
-- 在每个迭代开始时，团队选择一定量的产品待办列表项，计划在迭代中完成。
-
-日常沟通 Daily Stand-up 
-- 团队成员每天进行短暂的站立会议，讨论进度、计划和阻碍。
-
-适应性计划 
-敏捷开发鼓励在项目过程中根据反馈和变化来调整计划，而不是严格遵循预先定义的计划。(加ticket)
-
-开发人员互动：
-敏捷开发重视团队成员之间的面对面交流，认为这比流程和工具更为重要。
-
-工作软件：(Jira + Slack + Bitrise) (飞书、钉钉)
-敏捷开发认为可以工作的软件是进度的主要衡量标准，而不是详尽的文档。
-
-持续交付 Continuous Delivery (Jira + Slack + Bitrise)
-- 经常性地向客户交付可工作的软件，通常每个迭代结束时都有交付。
-
-测试驱动开发 Test-Driven Development, TDD
-- 先编写测试用例，然后编写满足测试的代码，确保代码质量。
-
-客户反馈 Customer Feedback (UAT Feedback)
-- 通过原型、演示和交付的软件，收集客户反馈，并将其整合到开发过程中。
-
-回顾 Retrospectives
-- 每个迭代结束时，团队会进行回顾会议，讨论哪些做得好，哪些需要改进。
-```
-
-**敏捷开发与Devops**
-
-Devops是Development和Operations的合成词，其目标是要加强开发人员、测试人员、运维人员之间的沟通协调。如何实现这一目标呢？需要我们的项目做到**持续集成**、**持续交付、持续部署**。
-
-**敏捷 12 原则**
-
-```objective-c
-1.我们的最高目标是满足客户通过尽早和持续地交付有价值的软件来满足客户。
-2.欢迎需求变更，即使在开发后期也应如此。敏捷过程利用变更为客户竞争优势。
-3.经常交付可工作的软件，交付周期从几周到几个月，以较短的周期为佳。
-4.业务人员和开发者必须每天一起工作。
-5.构建项目围绕有激励的个体。给他们所需的环境和支持，并且信任他们完成工作。
-6.面对面的沟通是信息传递效率和效果最好的方式。尽管这不可替代，也必须足够使用其他方式。
-7.可用的工作软件是进度的主要度量。
-8.敏捷过程提倡可持续的开发。赞助人、开发者和用户应该能够无限期地保持恒定的开发速度。
-9.持续关注技术卓越和良好设计可以增强敏捷性。
-10.简洁——通过尽可能少的工作量做到最大化的工作量——是本质。
-11.最佳的架构、需求和设计来自于自组织的团队。
-12.团队定期反思如何更有效率，并相应地调整其行为。
-```
-
-**敏捷开发的挑战**
-
-- 需要团队成员的高度协作和沟通。
-- 需要客户或利益相关者的持续参与和反馈。
-- 需要团队成员具备快速学习和适应变化的能力。
-
-**敏捷开发的益处**
-
-- 提高了对客户需求变化的响应能力。
-- 增强了团队的协作和沟通。
-- 减少了项目失败的风险。
-- 提供了更高质量的软件解决方案。
-
----
-
 ## CI/CD
 
 CI/CD 是现代软件开发中的两个重要概念，代表了持续集成（Continuous Integration）和持续交付/持续部署（Continuous Delivery/Continuous Deployment）。
@@ -1598,7 +1598,7 @@ Auto Layout 的主要特点包括：
 
 约束定义了视图的属性（如宽、高、顶部、底部、左边距、右边距等）与其他视图或父视图的关系。例如，你可以设置一个视图的左边距等于父视图的左边距加上10点。
 
-```
+```swift
 let constraint = view1.leadingAnchor.constraint(equalTo: view2.leadingAnchor, constant: 10)
 ```
 
@@ -1606,7 +1606,7 @@ let constraint = view1.leadingAnchor.constraint(equalTo: view2.leadingAnchor, co
 
 创建的约束需要被添加到视图中，并激活才能生效。在 iOS 9 及以上版本，可以使用 `NSLayoutConstraint.activate` 方法来激活约束。
 
-```
+```swift
 NSLayoutConstraint.activate([constraint])
 ```
 
@@ -1614,7 +1614,7 @@ NSLayoutConstraint.activate([constraint])
 
 某些情况下，可能需要为约束设置优先级，以便在冲突的情况下确定哪些约束应该被满足。约束的优先级是一个介于 `UILayoutPriorityRequired`（1000）和 `UILayoutPriorityDefaultHigh`（750）之间的值。
 
-```
+```swift
 constraint.priority = .defaultHigh
 ```
 
@@ -1622,7 +1622,7 @@ constraint.priority = .defaultHigh
 
 布局指南是视图的辅助边缘，可以帮助你更容易地创建符合设计规范的布局。例如，`edges` 布局指南表示视图的边缘。
 
-```
+```swift
 view.translatesAutoresizingMaskIntoConstraints = false
 NSLayoutConstraint.activate([
     view.topAnchor.constraint(equalTo: layoutGuide.topAnchor),
@@ -1634,7 +1634,7 @@ NSLayoutConstraint.activate([
 
 SwiftUI 提供了链式编程的方式来创建和激活约束，使得代码更加简洁。
 
-```
+```swift
 view.translatesAutoresizingMaskIntoConstraints = false
 view.topAnchor.constraint(equalTo: superview.topAnchor).isActive = true
 view.leadingAnchor.constraint(equalTo: superview.leadingAnchor).isActive = true
@@ -1644,7 +1644,7 @@ view.leadingAnchor.constraint(equalTo: superview.leadingAnchor).isActive = true
 
 在 iPhone X 等带有刘海屏的设备上，需要考虑安全区域，确保内容不会被系统控件遮挡。可以使用 `safeAreaLayoutGuide` 来创建约束。
 
-```
+```swift
 NSLayoutConstraint.activate([
     view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
     view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor)
@@ -1797,7 +1797,7 @@ func testBubleSorting() {
 
 AFNetworking 是一个用于 iOS、macOS 和 tvOS 的开源网络库， 它建立在Foundation网络层之上，提供了更易用的API和额外的功能，简化了网络请求的创建和处理过程。它基于 Grand Central Dispatch (GCD) 和 OperationQueue 来实现异步网络请求，从而避免了网络操作阻塞主线程。
 
-```
+```swift
 AFNetworking是一个流行的iOS和macOS网络库，用于处理HTTP网络请求。它建立在Foundation网络层之上，提供了更易用的API和额外的功能。以下是对AFNetworking实现原理和优缺点的解析：
 
 实现原理：
@@ -1839,7 +1839,7 @@ AFNetworking是一个功能丰富、易于使用的网络库，适用于Objectiv
 
 **优缺点**
 
-```
+```swift
 优点:
 1. 简化API：
    提供了比原生`NSURLConnection`更简洁易用的API。
@@ -1920,7 +1920,7 @@ SDWebImage使用NSURLSession进行图片的异步下载，不会阻塞主线程�
 
 **优缺点**
 
-```
+```swift
 优点:
 简化的API：
 通过链式调用和简洁的API，简化了网络图片加载的过程。
@@ -1942,7 +1942,7 @@ SDWebImage使用NSURLSession进行图片的异步下载，不会阻塞主线程�
 
 **SDWebImage 加载图片的流程：**
 
-```
+```swift
 1.入口 setImageWithURL:placeholderImage:options: 会先把 placeholderImage 显示，然后 SDWebImageManager 根据 URL 开始处理图片。
 
 2.进入 SDWebImageManager-downloadWithURL:delegate:options:userInfo:，交给 SDImageCache 从缓存查找图片是否已经下载 queryDiskCacheForKey:delegate:userInfo:.
@@ -2028,7 +2028,7 @@ SwiftLint是一个用于Swift代码的静态分析工具，它帮助开发者遵
 
 > 解析一下SwiftLint实现原理
 
-```
+```swift
 
 1. 抽象语法树（AST, Abstract Syntax Tree）
 SwiftLint利用Swift编译器生成的AST来分析代码结构。AST是源代码的树状表示，其中节点表示代码中的结构元素，如类、函数、变量等。
@@ -2063,7 +2063,7 @@ SwiftLint进行了性能优化，以确保即使在大型项目上也能快速�
 
 **优缺点**
 
-```
+```swift
 优点：
 自动化：自动化代码审查，减少人为错误。
 一致性：帮助团队保持代码风格的一致性。
@@ -2080,7 +2080,7 @@ SwiftLint进行了性能优化，以确保即使在大型项目上也能快速�
 
 `URLNavigator`是一个用于处理iOS应用中导航的路由库，它提供了一种声明式的方式来定义和执行导航逻辑。以下是对`URLNavigator`实现原理的解析：
 
-```
+```swift
 1.URL路由表
 URLNavigator使用一个路由表来映射URL模式和对应的处理逻辑。这个路由表是导航系统的核心，用于匹配传入的URL并找到相应的处理器。
 
@@ -2118,7 +2118,7 @@ URLNavigator是一个强大的导航库，适用于需要复杂导航逻辑的iO
 
 Realm是一个流行的移动数据库解决方案，用于在iOS、Android、React Native以及许多其他平台上提供高性能的对象存储。Swift Realm库是为Swift语言定制的API，提供了对Realm数据库的访问和操作。以下是对Swift Realm库实现原理的解析：
 
-```
+```swift
 1. 线程安全
 - Realm数据库是线程安全的，这意味着它可以在不同的线程上并发访问。Swift Realm库封装了这些线程安全的细节，使得开发者可以安全地在后台线程上执行数据库操作。
 
@@ -2162,15 +2162,13 @@ Realm是一个流行的移动数据库解决方案，用于在iOS、Android、Re
 Swift Realm库为Swift开发者提供了一个强大且易于使用的本地数据库解决方案，尤其适合需要高性能和实时数据同步的场景。然而，开发者应该根据项目需求和团队熟悉度来决定是否使用Realm。
 ```
 
-
-
 ### SnapKit
 
 ## Swift总结
 
 **0.谈一下Objective-c和Swift，有什么区别**
 
-```
+```swift
 Objective-C和Swift都是苹果公司用于iOS、macOS、watchOS和tvOS应用开发的编程语言，但它们在设计理念、语法和特性上存在显著差异：
 
 语言起源和历史:
@@ -2213,7 +2211,7 @@ Swift拥有一个快速增长的开发者社区，并且得到了苹果的大力
 
 Swift是苹果在2014年6月WWDC发布的全新编程语言，借鉴了JS,Python,C#,Ruby等语言特性,看上去偏脚本化,Swift 仍支持 cocoa touch 框架
 
-```
+```swift
 优点:
 Swift更加安全，它是类型安全的语言。
 Swift容易阅读，语法和文件结构简易化。
@@ -2480,7 +2478,7 @@ Objective-C: 不支持在协议中提供默认实现，必须由遵循协议的�
 
 #### 13. protocol 和 category 中如何使用 property
 
-```
+```swift
 1）在protocol中使用property只会生成setter和getter方法声明,我们使用属性的目的,是希望遵守我协议的对象能实现该属性.
 2）category 使用 @property 也是只会生成setter和getter方法的声明,如果我们真的需要给category增加属性的实现,需要借助于运行时的两个函数：
 ①objc_setAssociatedObject
@@ -2887,7 +2885,7 @@ func printType<T>(_ item: T) where T: Animal {
 
 #### 1.class 和 struct 的区别
 
-```
+```swift
 class和struct的区别：
 
 类型语义：
@@ -2913,7 +2911,7 @@ struct的复制可能涉及更多的内存操作，但在多线程环境中提�
 
 #### 2.不通过继承，代码复用(共用)的方式有哪些
 
-```
+```swift
 代码复用的好处：
 可以降低开发成本、增加代码的可靠性并提高它们的一致性。
 
@@ -3043,7 +3041,7 @@ print(mutableArray)  // 输出 [1, 2, 3, 4]，修改发生在副本上
 
 #### 8.如何获取当前代码的函数名和行号
 
-```
+```swift
 获取文件名： #file
 获取函数名： #function
 获取行号：#line
@@ -3061,7 +3059,7 @@ protocol SomeClassOnlyProtocol: class, SomeInheritedProtocol {
 
 #### 10.guard 使用场景
 
-```
+```swift
 使用 guard 来表达 “提前退出”的意图:
 1.在验证入口条件时
 2.在成功路径上提前退出
@@ -3091,7 +3089,7 @@ testDefer()
 
 #### 12.String 与 NSString 的关系与区别
 
-```
+```swift
 Swift 的String类型与 Foundation NSString 类进行了无缝桥接。
 最大的区别就是：String是值类型，而NSString是引用类型。 其他方面的差异就体现在各自api 上的差异。
 ```
@@ -3121,7 +3119,7 @@ public func map<T>(_ transform: (Element) throws -> T) rethrows -> [T]
 
 #### 16.try？ 和 try！是什么意思
 
-```
+```swift
 try?: 是用来修饰一个可能会抛出错误的函数。它会将错误转换为可选值，当调用try? 函数或方法语句时候，如果函数或方法抛出错误，程序不会发崩溃，而返回一个nil；如果没有抛出错误则返回可选值 
 try!: 会忽略错误传递链，并声明“do or die”。如果被调用函数或方法没有抛出异常，那么一切安好；但是如果抛出异常，立即崩溃。
 ```
@@ -3313,7 +3311,7 @@ threeTimesTable[6]  //18
 
 #### 26. ?? 的作用
 
-```
+```swift
 ?? 是空合运算符。
 比如a ?? b ，将对可选类型a进行为空判断，如果a包含一个值，就进行解封，否则就返回一个默认值b。
 表达式 a 必须是 Optional 类型。默认值 b 的类型必须要和 a 存储值的类型保持一致
