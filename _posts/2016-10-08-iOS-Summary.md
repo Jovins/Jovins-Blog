@@ -451,6 +451,8 @@ Objective-C 的 Runtime 是一个运行时库（Runtime Library），它是一�
 
 [RunLoop](https://blog.ibireme.com/2015/05/18/runloop/)
 
+RunLoop 实际上就是一个对象，这个对象管理了其需要处理的事件和消息，并提供了一个入口函数来执行上面 Event Loop 的逻辑。线程执行了这个函数后，就会一直处于这个函数内部 “接受消息->等待->处理” 的循环中，直到这个循环结束（比如传入 quit 的消息），函数返回。在iOS中苹果是如何利用 RunLoop 实现自动释放池、延迟回调、触摸事件、屏幕刷新等功能的。
+
 OSX/iOS 系统中，提供了两个这样的对象：NSRunLoop 和 CFRunLoopRef。
 CFRunLoopRef 是在 CoreFoundation 框架内的，它提供了纯 C 函数的 API，所有这些 API 都是线程安全的。
 NSRunLoop 是基于 CFRunLoopRef 的封装，提供了面向对象的 API，但是这些 API 不是线程安全的。
@@ -476,12 +478,12 @@ CFRunLoopObserverRef
 
 ```swift
 typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
-  kCFRunLoopEntry        		 = (1UL << 0), // 即将进入Loop
-  kCFRunLoopBeforeTimers  	  = (1UL << 1), // 即将处理 Timer
-  kCFRunLoopBeforeSources 	 = (1UL << 2), // 即将处理 Source
-  kCFRunLoopBeforeWaiting 	  = (1UL << 5), // 即将进入休眠
-  kCFRunLoopAfterWaiting 	     = (1UL << 6), // 刚从休眠中唤醒
-  kCFRunLoopExit          		  = (1UL << 7), // 即将退出Loop
+  kCFRunLoopEntry							= (1UL << 0), // 即将进入Loop
+  kCFRunLoopBeforeTimers			= (1UL << 1), // 即将处理 Timer
+  kCFRunLoopBeforeSources			= (1UL << 2), // 即将处理 Source
+  kCFRunLoopBeforeWaiting			= (1UL << 5), // 即将进入休眠
+  kCFRunLoopAfterWaiting			= (1UL << 6), // 刚从休眠中唤醒
+  kCFRunLoopExit							= (1UL << 7), // 即将退出Loop
 };
 ```
 
@@ -513,6 +515,8 @@ typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
 4: GSEventReceiveRunLoopMode: 接受系统事件的内部 Mode，通常用不到。
 5: kCFRunLoopCommonModes: 这是一个占位的 Mode，没有实际作用。
 ```
+
+应用场景举例：主线程的 RunLoop 里有两个预置的 Mode：kCFRunLoopDefaultMode 和 UITrackingRunLoopMode。这两个 Mode 都已经被标记为”Common”属性。DefaultMode 是 App 平时所处的状态，TrackingRunLoopMode 是追踪 ScrollView 滑动时的状态。当你创建一个 Timer 并加到 DefaultMode 时，Timer 会得到重复回调，但此时滑动一个TableView时，RunLoop 会将 mode 切换为 TrackingRunLoopMode，这时 Timer 就不会被回调，并且也不会影响到滑动操作。
 
 + AutoreleasePool 
 + 事件响应
@@ -691,7 +695,7 @@ DispatchQueue.global().async {
 
 ### 内存管理
 
-OS 内存管理是指对于应用程序中的对象内存进行合理分配和释放的过程。在 iOS 中，内存管理主要依靠引用计数（Reference Counting）来实现。以下是 iOS 内存管理的一些核心概念和方法：
+iOS 内存管理是指对于应用程序中的对象内存进行合理分配和释放的过程。在 iOS 中，内存管理主要依靠引用计数（Reference Counting）来实现。以下是 iOS 内存管理的一些核心概念和方法：
 
 > 1. **引用计数**：每个对象都有一个引用计数，表示有多少个指针指向该对象。当引用计数为0时，对象会被系统回收。
 > 2. **retain、release 和 autorelease**：开发者可以通过 retain 方法增加对象的引用计数，通过 release 方法减少对象的引用计数，以及通过 autorelease 方法将对象延迟释放。
@@ -1002,9 +1006,7 @@ iOS 开发中常用的设计模式主要包括以下几种：
 有几种流行的敏捷开发方法论，包括但不限于：
 
 - **Scrum**：一个包括角色（如Scrum Master、Product Owner）、仪式（如Sprint Planning、Daily Stand-up）和工件（如Product Backlog）的框架。
-- **极限编程（XP）**：强调编程实践，如结对编程、持续集成和测试驱动开发。
-- **FDD** ：功能驱动开发。
-- **TDD** : 测试驱动开发。
+- **极限编程（XP）**：强调编程实践，如结对编程、持续集成、`TDD`测试驱动开发和 `FDD` 功能驱动开发。
 - **看板（Kanban）**：使用看板板来可视化工作流程，管理进行中的任务。
 
 **Scrum**
@@ -1055,7 +1057,7 @@ Rlease：开发周期完成，项目发布新的可用版本。
 测试驱动开发 Test-Driven Development, TDD
 - 先编写测试用例，然后编写满足测试的代码，确保代码质量。
 
-客户反馈 Customer Feedback (UAT Feedback)
+客户反馈 Customer Feedback (UAT Feedback) ---- UAT User Acceptance Testing
 - 通过原型、演示和交付的软件，收集客户反馈，并将其整合到开发过程中。
 
 回顾 Retrospectives
@@ -1097,6 +1099,103 @@ Devops是Development和Operations的合成词，其目标是要加强开发人�
 - 提供了更高质量的软件解决方案。
 
 ----
+
+## 排序Sorting
+
+**冒泡排序**
+
+```swift
+// 冒泡排序
+// 降序
+// 泛型比较大小: Comparable
+// 时间平均复杂度：O(n^2) 最坏复杂度:O(n^2) 最好复杂度: O(n) 空间复杂度: O(1) 稳定
+func bubleSorting<T: Comparable>(_ array: inout [T]) {
+    for i in 0..<array.count {
+        for j in 0..<array.count - 1 - i {
+            if array[j] < array[j + 1] {
+                swaps(&array, before: j, after: j + 1)
+            }
+        }
+    }
+}
+```
+
+**插入排序**
+
+```swift
+// 插入排序
+// 降序
+// 时间平均复杂度：O(n^2) 最坏复杂度:O(n^2) 最好复杂度: O(n) 空间复杂度: O(1) 稳定
+func insertSorting<T: Comparable>(_ array: inout [T]) {
+    for i in 1..<array.count {
+        for j in 0..<i {
+            let k = i - j
+            guard k > 0, array[k - 1] < array[k] else {
+                break
+            }
+            swaps(&array, before: k - 1, after: k)
+        }
+    }
+}
+```
+
+**选择排序**
+
+```swift
+// 选择排序
+// 降序
+// 时间平均复杂度：O(n^2) 最坏复杂度:O(n^2) 最好复杂度: O(n^2) 空间复杂度: O(1) 不稳定
+func selectionSorting<T: Comparable>(_ array: inout [T]) {
+    for i in 0..<array.count {
+        for j in i..<array.count - 1 {
+            if array[i] < array[j + 1] {
+                swaps(&array, before: i, after: j + 1)
+            }
+        }
+    }
+}
+```
+
+**交换两个数**
+
+```swift
+func swaps<T>(_ array: inout [T], before b: Int, after a: Int) {
+    (array[b], array[a]) = (array[a], array[b])
+}
+```
+
+**快速排序**
+
+```swift
+// 快速排序
+// 降序
+// 时间平均复杂度：O(nlog2^n) 最坏复杂度:O(n^2) 最好复杂度: O(nlog2^n) 空间复杂度: O(nlog2^n) 不稳定
+func quickSorting<T: Comparable>(_ array: [T]) -> [T] {
+    guard array.count > 1 else {
+        return array
+    }
+    let pivot = array[array.count / 2]
+    let less = array.filter({ $0 > pivot })
+    let middle = array.filter({ $0 == pivot })
+    let greater = array.filter({ $0 < pivot })
+    return quickSorting(less) + middle + quickSorting(greater)
+}
+```
+
+**Unit Test**
+
+```swift
+let viewModel = SortingViewModel()
+
+func testBubleSorting() {
+    let desArray = [8, 7, 6, 5, 4, 3, 2, 1]
+    var array = [1, 3, 5, 2, 4, 8, 6, 7]
+    viewModel.bubleSorting(&array)
+    XCTAssertEqual(desArray, array)
+}
+```
+
+---
 
 ## 并发
 
@@ -1693,103 +1792,6 @@ iOS 中的内购（In-App Purchase，简称 IAP）是指在应用程序内部进
 这个流程确保了内购的安全性和用户的购买体验。开发者需要遵循苹果的内购规则和最佳实践，以避免潜在的问题和应用商店的审核拒绝。
 
 ----
-
-## 排序Sorting
-
-**冒泡排序**
-
-```swift
-// 冒泡排序
-// 降序
-// 泛型比较大小: Comparable
-// 时间平均复杂度：O(n^2) 最坏复杂度:O(n^2) 最好复杂度: O(n) 空间复杂度: O(1) 稳定
-func bubleSorting<T: Comparable>(_ array: inout [T]) {
-    for i in 0..<array.count {
-        for j in 0..<array.count - 1 - i {
-            if array[j] < array[j + 1] {
-                swaps(&array, before: j, after: j + 1)
-            }
-        }
-    }
-}
-```
-
-**插入排序**
-
-```swift
-// 插入排序
-// 降序
-// 时间平均复杂度：O(n^2) 最坏复杂度:O(n^2) 最好复杂度: O(n) 空间复杂度: O(1) 稳定
-func insertSorting<T: Comparable>(_ array: inout [T]) {
-    for i in 1..<array.count {
-        for j in 0..<i {
-            let k = i - j
-            guard k > 0, array[k - 1] < array[k] else {
-                break
-            }
-            swaps(&array, before: k - 1, after: k)
-        }
-    }
-}
-```
-
-**选择排序**
-
-```swift
-// 选择排序
-// 降序
-// 时间平均复杂度：O(n^2) 最坏复杂度:O(n^2) 最好复杂度: O(n^2) 空间复杂度: O(1) 不稳定
-func selectionSorting<T: Comparable>(_ array: inout [T]) {
-    for i in 0..<array.count {
-        for j in i..<array.count - 1 {
-            if array[i] < array[j + 1] {
-                swaps(&array, before: i, after: j + 1)
-            }
-        }
-    }
-}
-```
-
-**交换两个数**
-
-```swift
-func swaps<T>(_ array: inout [T], before b: Int, after a: Int) {
-    (array[b], array[a]) = (array[a], array[b])
-}
-```
-
-**快速排序**
-
-```swift
-// 快速排序
-// 降序
-// 时间平均复杂度：O(nlog2^n) 最坏复杂度:O(n^2) 最好复杂度: O(nlog2^n) 空间复杂度: O(nlog2^n) 不稳定
-func quickSorting<T: Comparable>(_ array: [T]) -> [T] {
-    guard array.count > 1 else {
-        return array
-    }
-    let pivot = array[array.count / 2]
-    let less = array.filter({ $0 > pivot })
-    let middle = array.filter({ $0 == pivot })
-    let greater = array.filter({ $0 < pivot })
-    return quickSorting(less) + middle + quickSorting(greater)
-}
-```
-
-**Unit Test**
-
-```swift
-let viewModel = SortingViewModel()
-
-func testBubleSorting() {
-    let desArray = [8, 7, 6, 5, 4, 3, 2, 1]
-    var array = [1, 3, 5, 2, 4, 8, 6, 7]
-    viewModel.bubleSorting(&array)
-    XCTAssertEqual(desArray, array)
-}
-```
-
----
 
 ## 第三方框架
 
