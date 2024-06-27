@@ -116,13 +116,13 @@ NSLog(@"%zd,%zd", class_getInstanceSize([NSObject class]) ,class_getInstanceSize
   2. superclass指针
   3. 类的类方法的信息（class method）
 
-  ![meta-class](/assets/images/2016-Summary/class-meta-class.webp)
+  ![meta-class](/assets/images/2016-Summary/class-meta-class01.webp)
 
   > **meta-class对象和class对象的内存结构是一样的，所以meta-class中也有类的属性信息，类的对象方法信息等成员变量**
 
 **isa 指针:**
 
-![class](/assets/images/2016-Summary/class-instance-meta.webp)
+![class](/assets/images/2016-Summary/class-instance-meta02.webp)
 
 + `instance`的`isa`指向class
   + 当调用对象方法时，通过`instance`的`isa`找到class，最后找到对象方法的实现进行调用
