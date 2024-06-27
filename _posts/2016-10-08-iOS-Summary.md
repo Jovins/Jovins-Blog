@@ -474,14 +474,16 @@ CFRunLoopObserverRef
 
 **CFRunLoopObserverRef** 是观察者，每个 Observer 都包含了一个回调（函数指针），当 RunLoop 的状态发生变化时，观察者就能通过回调接受到这个变化。可以观测的时间点有以下几个：
 
-> typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
->  kCFRunLoopEntry        		 = (1UL << 0), // 即将进入Loop
->  kCFRunLoopBeforeTimers  	  = (1UL << 1), // 即将处理 Timer
->  kCFRunLoopBeforeSources 	 = (1UL << 2), // 即将处理 Source
->  kCFRunLoopBeforeWaiting 	  = (1UL << 5), // 即将进入休眠
->  kCFRunLoopAfterWaiting 	     = (1UL << 6), // 刚从休眠中唤醒
->  kCFRunLoopExit          		  = (1UL << 7), // 即将退出Loop
-> };
+```swift
+typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
+  kCFRunLoopEntry        		 = (1UL << 0), // 即将进入Loop
+  kCFRunLoopBeforeTimers  	  = (1UL << 1), // 即将处理 Timer
+  kCFRunLoopBeforeSources 	 = (1UL << 2), // 即将处理 Source
+  kCFRunLoopBeforeWaiting 	  = (1UL << 5), // 即将进入休眠
+  kCFRunLoopAfterWaiting 	     = (1UL << 6), // 刚从休眠中唤醒
+  kCFRunLoopExit          		  = (1UL << 7), // 即将退出Loop
+};
+```
 
 **1.RunLoop 的内部逻辑: 接受消息->等待->处理**
 
