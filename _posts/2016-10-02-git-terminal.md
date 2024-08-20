@@ -509,3 +509,187 @@ $ git push origin master
 ```bash
 $ git push origin master -f // 大多数情况不要这么做
 ```
+
+## MacBook Pro Setup Guide
+
+> Note: 本 Tutorial 是基于 MacBook Pro M 系列.
+
+### 安装 Xcode
+
+**安装 iOS/watchOS/visionOS/tvOS 等模拟器**
+
+安装好 Xcode 后如果在 Xcode 点击下载模拟器失败, 可以在 [Apple Developer 官网](https://developer.apple.com/download/all/)搜索你所需要的 Simulator 版本.
+
+然后通过 Apple Developer 官网所提供的 [install Simulator 命令](https://developer.apple.com/documentation/xcode/installing-additional-simulator-runtimes) 进行安装.
+
+For Example:
+
+```shell
+xcode-select -s /Applications/Xcode-beta.app
+xcodebuild -runFirstLaunch
+xcrun simctl runtime add "~/Downloads/watchOS 9 beta Simulator Runtime.dmg"
+```
+
+### 安装 Homebrew
+
+homebrew, 因为所有个人账号都没有管理员权限，所以需要安装到个人目录下
+
+```shell
+// Step 1
+mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
+
+// Step 2
+eval "$(homebrew/bin/brew shellenv)"
+
+// Step 3   
+brew update --force --quiet
+
+// Step 4
+chmod -R go-w "$(brew --prefix)/share/zsh"
+```
+
+> Note: 如果发现类似下面的 error log, 可以尝试切换成手机热点, 然后使用自己的翻墙工具进行安装
+
+```shell
+error: RPC failed; curl 18 HTTP/2 stream 5 was reset465.00 KiB/s
+error: 5843 bytes of body are still expected
+fetch-pack: unexpected disconnect while reading sideband packet
+fatal: early EOF
+fatal: fetch-pack: invalid index-pack output
+```
+
+> Note: 如果关闭终端后发现输入 brew 命令提示找不到, 可以运行下面的命令, 将 homebrew 添加到 .zshrc 文件中
+
+```shell
+echo "eval $(homebrew/bin/brew shellenv)" >> ~/.zshrc
+```
+
+```shell
+source ~/.zshrc
+```
+
+如果运行完上面的命令, 运行 brew 命令或者在 .zshrc 文件中仍然提示找不到 brew, 那么可以手动将下面的命令贴到 .zshrc 文件中:
+
+```shell
+export PATH=/Users/{你的用户名}/homebrew/bin:$PATH
+```
+
+### 安装 Ruby version manager
+
+安装 rvm (Ruby Version Manager), 以便下一步安装ruby
+
+```shell
+// Step 1
+curl -L get.rvm.io | bash -s stable
+
+// Step2
+source ~/.rvm/scripts/rvm
+```
+
+安装 Ruby 指定版本
+
+Ruby, 同样因为个人账号没有管理员权限，所以无法更新ruby, 因此我们需要使用 rvm 安装新的 ruby
+
+```shell
+// Step 1   
+// 查看所有可用的ruby 版本
+rvm list known 
+
+// Step2   
+// 安装制定版本的 ruby, e.g. `rvm install ruby-3`
+rvm install ruby-[version]
+
+// Step3   
+// 查看当前机器所有安装的 ruby 版本
+rvm list
+```
+
+> 如果安装 ruby-3.0.0 报 `Error running '__rvm_make -jXXX` 等错误, 可以运行下面的命令去解决:
+
+```shell
+brew uninstall gnupg gnutls libevent unbound wget
+
+brew uninstall openssl@3
+
+RUBY_CONFIGURE_OPTS=--with-openssl-dir=/opt/homebrew/opt/openssl@1.1 rvm install 3.2.2
+```
+
+### 安装 CocoaPods
+
+在确保安装好 Homebrew 之后, 我们可以使用 Homebrew 命令去安装 CocoaPods:
+
+```shell
+brew install cocoapods
+```
+
+在使用 brew 安装 cocoapods 的时候记得确保只有一个 brew 命令在执行, 否则会冲突.
+
+> Note: 如果在安装结束后发现 CocoaPods 的命令缺少依赖, 比如下面的 error log:
+
+```shell
+/opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver/conflict.rb:47:in `conflicting_dependencies': undefined method `request' for nil:NilClass (NoMethodError)
+
+[@failed_dep.dependency, @activated.request.dependency]
+                                   ^^^^^^^^
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/exceptions.rb:61:in `conflicting_dependencies'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/exceptions.rb:55:in `initialize'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver.rb:193:in `exception'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver.rb:193:in `raise'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver.rb:193:in `rescue in resolve'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver.rb:191:in `resolve'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/request_set.rb:411:in `resolve'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/request_set.rb:423:in `resolve_current'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems.rb:230:in `finish_resolve'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems.rb:287:in `block in activate_bin_path'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems.rb:285:in `synchronize'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems.rb:285:in `activate_bin_path'
+from /opt/homebrew/Cellar/cocoapods/1.11.2_2/libexec/bin/pod:25:in `<main>'
+> /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver/molinillo/lib/molinillo/resolution.rb:317:in `raise_error_unless_state': Unable to satisfy the following requirements: (Gem::Resolver::Molinillo::VersionConflict)
+
+- `minitest (= 5.14.2)` required by `user-specified dependency`
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver/molinillo/lib/molinillo/resolution.rb:299:in `block in unwind_for_conflict'
+from <internal:kernel>:90:in `tap'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver/molinillo/lib/molinillo/resolution.rb:297:in `unwind_for_conflict'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver/molinillo/lib/molinillo/resolution.rb:682:in `attempt_to_activate'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver/molinillo/lib/molinillo/resolution.rb:254:in `process_topmost_state'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver/molinillo/lib/molinillo/resolution.rb:182:in `resolve'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver/molinillo/lib/molinillo/resolver.rb:43:in `resolve'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/resolver.rb:190:in `resolve'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/request_set.rb:411:in `resolve'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems/request_set.rb:423:in `resolve_current'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems.rb:230:in `finish_resolve'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems.rb:287:in `block in activate_bin_path'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems.rb:285:in `synchronize'
+from /opt/homebrew/Cellar/ruby/3.1.1/lib/ruby/3.1.0/rubygems.rb:285:in `activate_bin_path'
+from /opt/homebrew/Cellar/cocoapods/1.11.2_2/libexec/bin/pod:25:in `<main>'
+```
+
+可以先把 gem 清理, 然后再卸载所安装的 CocoaPods, 命令如下:
+
+> Note: 安装 CocoaPods 的命令来自 [CocoaPods 官网](https://cocoapods.org).
+
+```shell
+// 清理 gem
+gem cleanup
+
+// 使用 Homebrew 卸载 CocoaPods
+brew uninstall cocoapods
+
+// 使用 gem 卸载 CocoaPods
+sudo gem uninstall cocoapods
+
+// 使用 CocoaPods 官方提供的命令进行安装
+sudo gem install cocoapods -n /usr/local/bin
+sudo gem install cocoapods-user-defined-build-types
+
+pod install --repo-update
+```
+
+> Note: 这里使用 sudo 命令需要找到 IT Support 帮忙, 个人是没有使用 sudo 命令的权限.
+
+[手动安装cocoapods仓库](https://www.jianshu.com/p/363816e82440)
+
+```shell
+cd /Users/[用户]/.cocoapods
+git clone https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git ~/.cocoapods/repos/trunk
+```
